@@ -4,4 +4,4 @@ def isUnderAttack(color, sourceSquareRank, sourceSquareLine) -> bool:
   # Bauern/Springer/Läufer/Turm/Damen und König geholt
   # Wenn in solch einem Feld die jeweilige gegnerische Figur stehen könnte => Figur angegriffen => return True; sonst return False
   
-  return board.iloc[sourceSquareRank,sourceSquareLine] in checkLegalMovesV1(OTHER_COLOR[color], True):
+  return [sourceSquareRank,sourceSquareLine] in checkLegalMovesV1(OTHER_COLOR[color], True):
