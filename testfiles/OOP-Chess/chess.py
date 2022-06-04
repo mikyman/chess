@@ -1,24 +1,24 @@
 from board import Board
 from player import Player
+from sys import exit
 
-# Globals:
-# Constances:
-DIRECTIONS_ = {
-                "RBQK":((-1,0),(+1,0),(0,+1),(0,-1),(-1,+1),(+1,-1),(+1,+1),(-1,-1)),
-                "N": ((-2,+1),(-1,+2),(+1,+2),(+2,+1),(+2,-1),(+1,-2),(-1,-2),(-2,-1))
-              }
 
-OTHERCOLOR 	= {
-                "w":"b",
-                "b":"w"
-              }
-
+def startGame(board, player: list):
+  LONGCOLOR = {"w": "White", "b": "Black"}
+  index = 0
+  while True:
+    # Gibt von jedem aktiven Spieler die Spielerfarbe weiter
+    ret = board.setMove(player[index].color)
+    if ret == -1:
+      exit(f"\n Checkmate! {LONGCOLOR.get(player[index].color)} wins.\n")
+    # Setzt den index immer auf 1 oder 0
+    index = (index + 1) % 2
+    #-Last Edit
+    break
+  
 
 if __name__ == "__main__":
   # init
-  b = Board(True)
+  board = Board()
   player = [Player() for _ in range(2)]
-  print(b.printBoard())
-  print(b.printBoard())
-  print(b.printBoard())
-  print(b.printBoard())
+  startGame(board, player)
