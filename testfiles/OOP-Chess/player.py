@@ -1,3 +1,4 @@
+
 class Player():
   id = 0
   def __init__(self):
@@ -10,10 +11,14 @@ class Player():
     
   def setPlayerType(self, id) -> str:
     while True:
-      playerType = input(f"\nPlayer {id}, please choice:\n h for Human\n e for Engine\n> ").lower()
+      print()
+      print(f" Player {id}, please choice:")
+      print("  h for Human")
+      print("  e for Engine")
+      playerType = input("> ").lower()
       if playerType == "h": return "human"
       elif playerType == "e": return "engine"
   
   def setPlayerColor(self, id) -> str:
     # id % 2 != 0 -> 'w' else 'b'
-    return ('b','w')[id % 2]
+    return ("b","w")[id % 2]
