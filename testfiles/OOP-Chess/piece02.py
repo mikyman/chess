@@ -16,10 +16,6 @@ class Piece(ABC):
   @abstractmethod
   def getPossibleMoves(self, board):
     pass
-  
-  # Only for debug
-  def get_state(self):
-    return (self.x, self.y, self.piece)
     
   def __str__(self):
     return (self.piece)
@@ -172,18 +168,42 @@ class Queen(Piece):
 class King(Piece):
   def __init__(self, xy_coord, piece):
     super().__init__((xy_coord), piece)
+  
+  def canHitKing(self, testPos, board):
+    for x, y in ((1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1), (0, -1), (1, -1)):
+      new_x = self.x-x
+      new_y = self.y-y
+      if ((0 <= new_x <= 7) and (0 <= new_y <= 7)):
+        if ((new_x, new_y) == testPos):
+          return True
+    return False
 
   def getHitMoves(self, board):
     pass
 
   def getPossibleMoves(self, board):
-    pass
+    moves = []
+    for x, y in ((1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1), (0, -1), (1, -1)):
+      new_x = self.x-x
+      new_y = self.y-y
+      pos = (new_x, new_y)
+      if ((0 <= new_x <= 7) and (0 <= new_y <= 7)):
+        if ((pos not in board) or (self.color != board.get(pos).color)):
+          if not Board().isDangerousField(pos, self.piece, board):
+            moves.append(pos)
+    return moves
+    
 
 
 class Board():
-  def __init__(self):
-    self.figure_and_names = list(zip((Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook), 'rnbqkbnr'))
-    self.board = self.reset()
+  def __init__(self, testMode=False):
+    if testMode:
+      self.board = dict()
+      self.figure = {'r': Rook, 'n': Knight, 'b': Bishop, 'q': Queen, 'k': King, 'p': Pawn}
+    else:
+      self.figure_and_names = list(zip((Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook), 'rnbqkbnr'))
+      self.board = self.reset()
+    self.kingPositions = self.getKingPos()
     
   def reset(self):
     new_board = dict()
@@ -194,9 +214,46 @@ class Board():
                       for i, figure in enumerate(self.figure_and_names)})
     return new_board
   
-  def setFigure(self, old_xy, new_xy):
+  def getKingPos(self):
+    if (self.board.get((4,7)) and self.board.get((4,0))):
+      return {'K': (4,7), 'k': (4,0)}
+    return {self.board.get(pos).piece: pos for pos in self.board if self.board.get(pos) in ('Kk')}        
+  
+  def setNewFigure(self, pos_xy:tuple, piece:str):
+    if ((0 <= pos_xy[0] <= 7) and (0 <= pos_xy[1] <= 7)):
+      # for input-error
+      if piece.lower()[0] in ('rnbqkp'):
+        figure = self.figure.get(piece.lower()[0])
+        self.board.update({pos_xy:figure(pos_xy, piece[0])})
+        if piece[0] in 'Kk':
+          self.kingPositions.update({piece[0]: pos_xy})
+  
+  def moveFigure(self, old_xy, new_xy):
     pass
   
+  @staticmethod
+  def isDangerousField(pos_xy: tuple, piece, board) -> bool:
+    # get Knight's positions and checked, can attack my position
+    if ((0 <= pos_xy[0] <= 7) and (0 <= pos_xy[1] <= 7)):
+      knight_moves = Knight(pos_xy, ('n', 'N')[piece.isupper()]).getHitMoves(board)
+      for pos in knight_moves:
+        # this piece is figure.piece
+        if board.get(pos).piece in ('nN'):
+          return True
+      # get all positions at the Queen and checked, can any piece in this radius, attack my position
+      queen_moves = Queen(pos_xy, ('q', 'Q')[piece.isupper()]).getHitMoves(board)
+      for pos in queen_moves:
+        # input(pos)
+        if board.get(pos).piece in ('Kk'):
+          if board.get(pos).canHitKing(pos_xy, board):
+            return True
+          continue
+        elif pos_xy in board.get(pos).getPossibleMoves(board):
+          return True
+      return False
+    else:
+      raise Exception('X-Coordinate or Y-Coordinate are outside the boardsize.')
+
   def printBoard(self):
     print('  0 1 2 3 4 5 6 7')
     for y in range(8):
@@ -205,11 +262,27 @@ class Board():
         print(f" {self.board.get((x, y), '-')}", end='')
       print()
 
-  
-b = Board()
-b.printBoard()
-# for k in b.board:
-  # print(b.board[k].piece)
-  # print(b.board[k].getPossibleMoves(b.board))
-# # print(b.board[(1,1)].canChange())
-  # print(b.board[k].getHitMoves(b.board))
+# TODO:
+# + add FEN
+# + add isCheckmate()
+# + add makeMoves()
+# + add rochade()
+# + Tranform to pygame
+# EDIT:
+# isDangerousField renamed to getDangerousFields
+# getDangerousFields became a list of posible moves
+# get a list of all dangerous fields and test the list as a set
+
+
+if __name__ == '__main__':
+  b = Board(True)
+  b.setNewFigure((4,4), 'K')
+  for fig in ('k'):
+    b.setNewFigure((4,2), fig)
+    b.printBoard()
+    # for k in b.board:
+      # print(b.board[k].piece)
+      # print(b.board[k].getPossibleMoves(b.board))
+    # # print(b.board[(1,1)].canChange())
+      # print(b.board[k].getHitMoves(b.board))
+    print(b.board.get((4,4)).getPossibleMoves(b.board))
