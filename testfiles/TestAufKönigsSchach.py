@@ -1,7 +1,7 @@
 import itertools
 import copy
 
-# __VERSION = 0.9
+# __VERSION = 0.10
 
 # Alle Koordiinaten sind nach Y,X Schemata angeordnet.
 # NamensKürzel der Figuren auf dem Brett:
@@ -48,7 +48,6 @@ class Brett():
                     ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
                     ('WP '*8).split(),
                     ['WR','WN','WB','WQ','WK','WB','WN','WR'],
-                    # ['  ', '  ', '  ', '  ', '  ', '  ', '  ', '  '],
                     ]
     else:
       cls.pos_koenig = [(),()]
@@ -114,7 +113,7 @@ class Brett():
             gueltige_positionen.append( (delda_y, delda_x) )
       # vorgehen
       elif not (vom_gegner):
-        delda_y2 = 2*delda_y
+        delda_y2 = y_pos+richtung[0]*2
         if (ist_frei):
           gueltige_positionen.append( (delda_y, delda_x) )
           if (y_pos in (1, 6)):
@@ -192,7 +191,6 @@ class Brett():
       if cls.ist_gueldig((delda_y, delda_x)):
         pos_in_gegner_zuege = (delda_y, delda_x) in gegner_zuege
         kein_verbuendeter = cls.__felder[delda_y][delda_x][0] != farbe
-        print((delda_y, delda_x), (not pos_in_gegner_zuege) and (kein_verbuendeter))
         if ((not pos_in_gegner_zuege) and (kein_verbuendeter)):
           return False
     return True
@@ -251,7 +249,7 @@ class Brett():
 
 
 
-Brett.init(False)
+Brett.init(True)
 #Brett.setze_figur("WK", (6,4))
 # Brett.setze_figur("bp", (5,5))
 # for i in range(8):
@@ -267,12 +265,13 @@ Brett.init(False)
 #  Brett.a('b', True)
 # for _ in Brett.hole_güldige_züge('W', True):
 #   print(_,end=',') 
-for fig, pos in ( ("WN",(1,3)), ('bk',(2,4)), ('WQ',(2,5)), ('WP',(3,2)), ('bp',(3,3)), ('WP',(2,2))):
-  Brett.setze_figur(fig,pos)
+# for fig, pos in ( ("WN",(1,3)), ('bk',(2,4)), ('WQ',(2,5)), ('WP',(3,2)), ('bp',(3,3)), ('WP',(2,2))):
+  # Brett.setze_figur(fig,pos)
 print('Original Brett:')
 Brett.c()
 print(f'Ist Schach: {Brett.ist_schach_oder_matt("b")}')
 print(Brett.hole_güldige_züge('b', False))
 Brett.a('W', True)
+Brett.a('W', False)
 Brett.a('b', False)
   
